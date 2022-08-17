@@ -1,5 +1,7 @@
 import { HSL2RGB, isLightColor, RGB2HSL } from './color'
 import { NFTStorage } from 'nft.storage/dist/bundle.esm.min.js'
+import { ethers } from 'ethers'
+import ContractJson from "../contract.json";
 
 const NFT_STORAGE_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDk4YjFDRUJDMDc5Mzk4NWNGNzM2NzNiNDI1MTVlOTQ0NzM4MmM3RGYiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTY1OTYzMTE2MTcyMSwibmFtZSI6InNhZiJ9.vQiFuB9ioSXaetLG0HjcNuR0zDYdldf9sySVjMCQSws'
 const client = new NFTStorage({ token: NFT_STORAGE_TOKEN })
@@ -222,10 +224,43 @@ export  function download (options)  {
     const blob = dataURItoBlob(imageData)
     const metadata = await client.storeBlob(blob)
     console.log(metadata)
-    document.querySelector('body').appendChild(link)
-    link.click()
-    document.querySelector('body').removeChild(link)
-    resolve()
+
+    const { ethereum } = window;
+    if(!ethereum){
+      console.log("metamask don't installed")
+      return;
+    }
+    const provider = new ethers.providers.Web3Provider(ethereum)
+
+    const accounts = await ethereum.request({
+      method: "eth_requestAccounts",
+    });
+    console.log(accounts)
+
+    // MetaMask requires requesting permission to connect users accounts
+    await provider.send("eth_requestAccounts", []);
+
+    // The MetaMask plugin also allows signing transactions to
+    // send ether and pay to change state within the blockchain.
+    // For this, you need the account signer...
+    const signer = provider.getSigner()
+    const connectedContract = new ethers.Contract(
+      "0x01386ACa09AE2e56167d8447d87d775DC2A6A80c",
+      ContractJson.abi,
+      signer
+    );
+    const mintTxn = await connectedContract.mint(
+      accounts[0],
+      metadata['url']
+    )
+
+    console.log(mintTxn)
+
+
+    // document.querySelector('body').appendChild(link)
+    // link.click()
+    // document.querySelector('body').removeChild(link)
+    // resolve()
   })
 }
 
