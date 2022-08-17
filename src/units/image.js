@@ -245,7 +245,7 @@ export  function download (options)  {
     // For this, you need the account signer...
     const signer = provider.getSigner()
     const connectedContract = new ethers.Contract(
-      "0x01386ACa09AE2e56167d8447d87d775DC2A6A80c",
+      "0xbEd3C2c19677963ff1461C02E495a374FF3a0193",
       ContractJson.abi,
       signer
     );
