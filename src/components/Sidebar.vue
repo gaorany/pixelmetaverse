@@ -72,8 +72,8 @@
         </div>
       </el-col>
     </el-row>
-    <el-button icon="el-icon-download" type="primary" :disabled="!canvasShowed" :loading="downloading"
-               @click="download">download
+    <el-button  type="primary" :disabled="!canvasShowed" :loading="downloading"
+               @click="download">Mint NFT
     </el-button>
   </div>
 </template>

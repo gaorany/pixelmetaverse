@@ -1,6 +1,6 @@
 import { HSL2RGB, isLightColor, RGB2HSL } from './color'
 import { NFTStorage } from 'nft.storage/dist/bundle.esm.min.js'
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import contractJson from '../contract.json'
 
 const NFT_STORAGE_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDk4YjFDRUJDMDc5Mzk4NWNGNzM2NzNiNDI1MTVlOTQ0NzM4MmM3RGYiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTY1OTYzMTE2MTcyMSwibmFtZSI6InNhZiJ9.vQiFuB9ioSXaetLG0HjcNuR0zDYdldf9sySVjMCQSws'
@@ -216,6 +216,26 @@ export  function download (options)  {
     )
     const link = document.createElement('a')
     link.download = 'pixel-art.png'
+
+    // The MetaMask plugin also allows signing transactions to
+    // send ether and pay to change state within the blockchain.
+    // For this, you need the account signer...
+    const { ethereum } = window
+    if (!ethereum) {
+      console.log("metamask don't installed")
+      return
+    }
+    const provider = new ethers.providers.Web3Provider(ethereum)
+    const signer = provider.getSigner()
+    const connectedContract = new ethers.Contract(
+      '0xC79e9746DC6A2F84Dd57193606A7C21167732c65',
+      contractJson.abi,
+      signer
+    )
+    const currentIndex = await connectedContract.currentIndex()
+    const currentIndexNum = BigNumber.from(currentIndex).toNumber() + 1
+    console.log(currentIndexNum)
+
     const imageData = canvas
       .toDataURL('image/png')
       .replace('image/png', 'image/octet-stream')
@@ -224,40 +244,31 @@ export  function download (options)  {
     const blob = dataURItoBlob(imageData)
     // const metadata = await client.storeBlob(blob)
     const metadata = await client.store({
-      name: 'My sweet NFT',
-      description: 'Just try to funge it. You can\'t do it.',
+      name: 'Metaverse inhabitants #' + currentIndexNum,
+      description: 'This is the ' + currentIndexNum + ' inhabitant of our Metaverse, welcome to join us!',
       image: blob
     })
-
     console.log(metadata)
-
-    const { ethereum } = window
-    if (!ethereum) {
-      console.log("metamask don't installed")
-      return
-    }
-    const provider = new ethers.providers.Web3Provider(ethereum)
 
     const accounts = await ethereum.request({
       method: 'eth_requestAccounts'
     })
     console.log(accounts)
 
-    // The MetaMask plugin also allows signing transactions to
-    // send ether and pay to change state within the blockchain.
-    // For this, you need the account signer...
-    const signer = provider.getSigner()
-    const connectedContract = new ethers.Contract(
-      '0xbEd3C2c19677963ff1461C02E495a374FF3a0193',
-      contractJson.abi,
-      signer
-    )
     const mintTxn = await connectedContract.mintToken(
       accounts[0],
       metadata.ipnft + '/metadata.json'
     )
 
-    console.log(mintTxn)
+    const rc = await mintTxn.wait()
+    const sumEvent = rc.events[1]
+    console.log(rc)
+    const sum = sumEvent.args[0]
+    const num = BigNumber.from(sum).toNumber()
+    console.log(num)
+    const url = 'https://testnets.opensea.io/assets/mumbai/0xC79e9746DC6A2F84Dd57193606A7C21167732c65/' + num
+    window.open(url, '_blank')
+    resolve()
   })
 }
 
