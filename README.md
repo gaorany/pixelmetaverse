@@ -1,44 +1,49 @@
-# 像素画
+# PixelMetaverse
 
-上传图片转换成像素画。
-![screenshot](screenshot/screenshot.png)
+Upload an image and convert it to pixel art.
 
-# 参考资料
+# References
 
-## 颜色空间转换
+## color space conversion
 https://github.com/brehaut/color-js  
 
-## 亮度、饱和度调整
+## Brightness and saturation adjustment
 https://github.com/chenshenhai/pictool
 
-## 颜色差异算法
+## Color Difference Algorithm
 https://zh.wikipedia.org/wiki/%E9%A2%9C%E8%89%B2%E5%B7%AE%E5%BC%82#CIEDE2000  
 https://github.com/kenlimmj/empfindung  
 https://github.com/Evercoder/d3-color-difference  
 https://github.com/gfiumara/CIEDE2000  
 
-## 对比度的原理（来源于网络）
+## The principle of contrast (from the Internet)
 
 ```text
-Photoshop对比度算法。可以用下面的公式来表示：
+Photoshop contrast algorithm. It can be represented by the following formula:
 
 (1)nRGB = RGB + (RGB - Threshold) * Contrast / 255
+In the formula, nRGB represents the new R, G, and B components of the image pixel, 
+RGB represents the R, G, and B components of the image pixel, Threshold is the given threshold, 
+and Contrast is the processed contrast increment.
 
-公式中，nRGB表示图像像素新的R、G、B分量，RGB表示图像像素R、G、B分量，Threshold为给定的阀值，Contrast为处理过的对比度增量。
+Photoshop handles the contrast increment according to the positive and negative of the given value:
 
-Photoshop对于对比度增量，是按给定值的正负分别处理的：
+When the increment is equal to -255, it is the lower limit of the image contrast. At this time, 
+the RGB components of the image are all equal to the threshold value, the image is completely gray, 
+and there is only one line on the grayscale image, that is, the threshold grayscale;
 
-当增量等于-255时，是图像对比度的下端极限，此时，图像RGB各分量都等于阀值，图像呈全灰色，灰度图上只有1条线，即阀值灰度；
+When the increment is greater than -255 and less than 0, directly use the above formula to calculate each component of the image pixel;
 
-当增量大于-255且小于0时，直接用上面的公式计算图像像素各分量；
+When the increment is equal to 255, it is the upper limit of the image contrast, which is actually equal to setting the image threshold. 
+The image consists of up to eight colors, and there are up to eight lines on the grayscale image, namely red, yellow, green, cyan, blue,
+and purple. and black and white;
 
-当增量等于 255时，是图像对比度的上端极限，实际等于设置图像阀值，图像由最多八种颜色组成，灰度图上最多8条线，即红、黄、绿、青、蓝、紫及黑与白；
+When the increment is greater than 0 and less than 255, the increment is first processed according to the following formula (2), 
+and then the contrast is calculated according to the above formula (1):
 
-当增量大于0且小于255时，则先按下面公式(2)处理增量，然后再按上面公式(1)计算对比度：
+(2), nContrast = 255 * 255 / (255 - Contrast) - 255
 
-(2)、nContrast = 255 * 255 / (255 - Contrast) - 255
-
-公式中的nContrast为处理后的对比度增量，Contrast为给定的对比度增量。
+nContrast in the formula is the processed contrast increment, and Contrast is the given contrast increment.
 ```
 
 
