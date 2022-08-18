@@ -19,6 +19,7 @@ module.exports = {
     "no-multi-spaces": "off",
     // allow async-await
     'generator-star-spacing': 'off',
-    "no-async-promise-executor":'off'
+    "no-async-promise-executor":'off',
+    'no-useless-escape':'off'
   }
 }
